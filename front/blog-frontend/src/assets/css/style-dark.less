@@ -1,0 +1,17 @@
+@darkColor: #1d1e1f;
+@fontcolor: #fff;
+html.dark {
+  .layout-wrap {
+    background-color: @darkColor;
+    color: @fontcolor;
+    .header-wrap {
+      background-color: @darkColor;
+      color: @fontcolor;
+      box-shadow: 0 1px 0px #ccc;
+    }
+    .content {
+      background-color: @darkColor !important;
+      color: @fontcolor;
+    }
+  }
+}
