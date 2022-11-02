@@ -9,9 +9,11 @@
   },
   "dependencies": {
     "@vueuse/core": "^9.3.1",
+    "axios": "^1.1.3",
     "element-plus": "^2.2.18",
     "normalize": "^0.3.1",
     "normalize.css": "^8.0.1",
+    "pinia": "^2.0.23",
     "vue": "^3.2.13",
     "vue-router": "^4.0.3"
   },
