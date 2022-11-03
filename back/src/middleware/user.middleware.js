@@ -1,4 +1,10 @@
+const svgCaptcha = require('svg-captcha')
+const { obj, client } = require('../app/config')
+const { md5Password } = require('../utils/password-handle')
+const errorTypes = require('../constants/error-types')
 
+let EMAIL_CODE = '1234'
+let PHONE_NUMBER_CODE = 'abcd'
 /**
  * 校验用户注册的信息
  * @param {*} ctx
@@ -6,19 +12,136 @@
  */
 const verifyBodyInfo = async (ctx, next) => {
   const body = ctx.request.body
+  // 判空
+  if (!body.username || !body.password || !body.email || !body.emailCode || !body.phoneNumber || !body.phoneNumberCode || !body.nickname || !body.avatarCode) {
+    const error = new Error(errorTypes.USER_PARAMS_IS_NOT_EMPTY)
+    return ctx.app.emit('error', error, ctx)
+  }
   await next()
 }
 
 /**
+ * 获取验证码图片
+ * @param {*} ctx
+ * @param {*} next
+ */
+const createCaptcha = async (ctx, next) => {
+  const random = Math.random() * 10
+  let captcha = ''
+  if (random > 5) {
+    captcha = svgCaptcha.create({
+      size: 4, // 验证码长度
+      ignoreChars: '0o1i', // 排除某些字符
+      noise: 1, // 干扰线数量
+      color: true, // 验证码字符是否有颜色, 默认没有, 如果设定了背景, 则默认有
+      background: '#cc9966' // 验证码图片背景颜色
+    })
+  } else {
+    captcha = svgCaptcha.createMathExpr({
+      size: 4, // 验证码长度
+      ignoreChars: '0o1i', // 排除某些字符
+      noise: 1, // 干扰线数量
+      color: true, // 验证码字符是否有颜色, 默认没有, 如果设定了背景, 则默认有
+      background: '#cc9966' // 验证码图片背景颜色
+    })
+  }
+  ctx.response.set('content-type', 'svg')
+  ctx.body = captcha
+}
+
+/**
+ * 发送邮箱验证码
+ */
+const sendEmail = async (ctx, next) => {
+  // 邮箱已经验证
+  const email = ctx.request.body.email
+  const emailCode = Math.floor(Math.random() * 9999)
+  EMAIL_CODE = emailCode
+  obj.send(email, emailCode)
+  ctx.body = {
+    code: 200,
+    msg: '请关注邮箱动态~'
+  }
+}
+
+/**
+ * 发送短信验证码
+ * @param {*} ctx
+ * @param {*} next
+ */
+const sendShortMessage = async (ctx, next) => {
+  const code = Math.floor(Math.random() * 9999)
+  const phoneNumber = ctx.request.body.phoneNumber
+  client
+    .request(
+      'SendSms',
+      {
+        SignName: '阿里云短信测试',
+        TemplateCode: 'SMS_154950909',
+        PhoneNumbers: phoneNumber,
+        TemplateParam: '{"code":"1234"}',
+        TemplateParam: `{'code': ${code}}`
+      },
+      {
+        method: 'POST',
+        formatParams: false
+      }
+    )
+    .then(
+      () => {
+        PHONE_NUMBER_CODE = code
+        ctx.body = {
+          code: 200,
+          msg: '请留意手机短信~'
+        }
+      },
+      (err) => {
+        console.log(err)
+      }
+    )
+}
+
+/**
  * 校验邮箱发送验证码
+ * @param {*} ctx
+ * @param {*} next
+ */
+const verifyEmail = async (ctx, next) => {
+  if (ctx.request.body.emailCode != EMAIL_CODE) {
+    const error = new Error(errorTypes.USER_EMAIL_CODE_IS_NOT_MATCH)
+    return ctx.app.emit('error', error, ctx)
+  }
+  await next()
+}
+
+/**
+ * 校验手机号发送短信验证码
+ * @param {*} ctx
+ * @param {*} next
+ */
+const verifyPhoneNumber = async (ctx, next) => {
+  if (ctx.request.body.phoneNumberCode != PHONE_NUMBER_CODE) {
+    const error = new Error(errorTypes.USER_PHONE_NUMBER_CODE_IS_NOT_MATCH)
+    return ctx.app.emit('error', error, ctx)
+  }
+  await next()
+}
+/**
+ * 密码加密
  * @param {*} ctx 
  * @param {*} next 
  */
-const verifyEmail = async (ctx, next) => {
+const handlePassword = async (ctx, next) => {
+  ctx.request.body.password = md5Password(ctx.request.body.password)
   await next()
 }
 
 module.exports = {
   verifyBodyInfo,
-  verifyEmail
+  createCaptcha,
+  sendEmail,
+  sendShortMessage,
+  verifyEmail,
+  verifyPhoneNumber,
+  handlePassword
 }

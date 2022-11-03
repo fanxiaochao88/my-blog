@@ -1,4 +1,5 @@
 const dotenv = require('dotenv')
+const Core = require('@alicloud/pop-core')
 // 发送邮箱配置
 const nodemailer = require('nodemailer')
 const obj = {
@@ -11,7 +12,7 @@ const obj = {
     }
   }),
 
-  send: function(mail, content) {
+  send: function (mail, content) {
     const mailOptions = {
       // 发送方的邮箱地址
       from: '3065717078@qq.com',
@@ -19,7 +20,7 @@ const obj = {
       // cc         : ''  //抄送 用于多人邮件
       // bcc      : ''    //密送
       subject: '激活验证码',
-      text: `您的注册验证码为：${content}, 24小时内有效，请谨慎保管`, 
+      text: `您的注册验证码为：${content}, 24小时内有效，请谨慎保管`,
       html: `
             <head>
             <base target="_blank" />
@@ -85,6 +86,14 @@ const obj = {
     })
   }
 }
+// 发送短信验证码
+const client = new Core({
+  accessKeyId: 'LTAI5tMXJQcv37uL1XFNHTDT',
+  accessKeySecret: 'QA7IDGdMGz1uhV5bMhRHh9NkT9Ndhm',
+  // securityToken: '<your-sts-token>', // use STS Token
+  endpoint: 'https://dysmsapi.aliyuncs.com',
+  apiVersion: '2017-05-25'
+})
 /**
  * dotenv启动路径必须在根目录
  * 否则读取不到.env变量的值
@@ -92,5 +101,4 @@ const obj = {
 dotenv.config()
 const { APP_PORT, MYSQL_HOST, MYSQL_PORT, MYSQL_DATABASE, MYSQL_USER, MYSQL_PASSWORD } = process.env
 
-module.exports = { APP_PORT, MYSQL_HOST, MYSQL_PORT, MYSQL_DATABASE, MYSQL_USER, MYSQL_PASSWORD, obj }
-
+module.exports = { APP_PORT, MYSQL_HOST, MYSQL_PORT, MYSQL_DATABASE, MYSQL_USER, MYSQL_PASSWORD, obj, client }

@@ -12,7 +12,24 @@ const routes: Array<RouteRecordRaw> = [
         path: '/index',
         component: () => import('@/views/list/homeList.vue')
       }
-    ]
+    ],
+    meta: {
+      title: '首页'
+    }
+  },
+  {
+    path: '/login',
+    component: () => import('@/views/login/login.vue'),
+    meta: {
+      title: '登录'
+    }
+  },
+  {
+    path: '/register',
+    component: () => import('@/views/regisster/register.vue'),
+    meta: {
+      title: '注册'
+    }
   }
 ]
 

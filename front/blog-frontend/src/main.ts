@@ -4,6 +4,7 @@ import router from "./router";
 import "normalize.css";
 import "@/assets/css/base.less";
 import "@/assets/css/style-dark.less";
+import VueParticles from 'vue-particles'
 
 import ElementPlus from "element-plus";
 import "element-plus/dist/index.css";
@@ -15,6 +16,7 @@ for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
   app.component(key, component);
 }
 
+app.use(VueParticles)
 
 
 import { createPinia } from 'pinia'

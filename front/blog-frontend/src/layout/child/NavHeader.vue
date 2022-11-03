@@ -27,7 +27,7 @@
           </el-badge>
           <div>
             <el-avatar v-if="loginStore.token" :size="35" src="https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png" />
-            <el-link type="primary" v-else>登录/注册</el-link>
+            <el-link type="primary" v-else @click="gotoLogin">登录/注册</el-link>
           </div>
         </div>
       </div>
@@ -38,6 +38,7 @@
 <script lang="ts" setup>
 import { Search, Sunny, Moon } from '@element-plus/icons-vue'
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { useLoginStore } from '@/store/login/index'
 /**
  * element-plus暗黑模式切换
@@ -73,6 +74,10 @@ const loseFocus = () => {
  * 登录判断
  */
 const loginStore = useLoginStore()
+const router = useRouter()
+const gotoLogin = () => {
+  router.replace('/login')
+}
 </script>
 <style lang="less" scoped>
 .active {
