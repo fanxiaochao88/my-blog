@@ -2,22 +2,48 @@ const svgCaptcha = require('svg-captcha')
 const { obj, client } = require('../app/config')
 const { md5Password } = require('../utils/password-handle')
 const errorTypes = require('../constants/error-types')
+const userService = require('../service/user.service')
 
-let EMAIL_CODE = '1234'
-let PHONE_NUMBER_CODE = 'abcd'
+let EMAIL_CODE = 'abcd'
+let PHONE_NUMBER_CODE = '1234'
 /**
  * 校验用户注册的信息
  * @param {*} ctx
  * @param {*} next
  */
 const verifyBodyInfo = async (ctx, next) => {
+  console.log(111)
   const body = ctx.request.body
   // 判空
-  if (!body.username || !body.password || !body.email || !body.emailCode || !body.phoneNumber || !body.phoneNumberCode || !body.nickname || !body.avatarCode) {
+  if (!body.username || !body.password || !body.email || !body.emailCode || !body.phoneNumber || !body.phoneNumberCode) {
     const error = new Error(errorTypes.USER_PARAMS_IS_NOT_EMPTY)
     return ctx.app.emit('error', error, ctx)
   }
   await next()
+}
+
+/**
+ * 校验用户名是否存在
+ * @param {*} ctx
+ * @param {*} next
+ */
+const verifyUsername = async (ctx, next) => {
+  const { username } = ctx.request.body
+  // 调接口验证
+  const result = await userService.verifyUsername(username)
+  if (result.length) {
+    ctx.body = {
+      code: 200,
+      msg: 1,
+      result: result[0]
+    }
+  } else {
+    ctx.body = {
+      code: 200,
+      msg: 0,
+      result: {}
+    }
+  }
 }
 
 /**
@@ -55,12 +81,23 @@ const createCaptcha = async (ctx, next) => {
 const sendEmail = async (ctx, next) => {
   // 邮箱已经验证
   const email = ctx.request.body.email
-  const emailCode = Math.floor(Math.random() * 9999)
-  EMAIL_CODE = emailCode
-  obj.send(email, emailCode)
-  ctx.body = {
-    code: 200,
-    msg: '请关注邮箱动态~'
+  // 判断邮箱是否存在
+  const result = await userService.isHasEmail(email)
+  if (!result.length) {
+    const emailCode = Math.floor(Math.random() * 9999)
+    EMAIL_CODE = emailCode
+    obj.send(email, emailCode)
+    ctx.body = {
+      code: 200,
+      msg: '请关注邮箱动态~',
+      result: {}
+    }
+  } else {
+    ctx.body = {
+      code: 200,
+      msg: '邮箱已存在',
+      result: result[0]
+    }
   }
 }
 
@@ -72,33 +109,45 @@ const sendEmail = async (ctx, next) => {
 const sendShortMessage = async (ctx, next) => {
   const code = Math.floor(Math.random() * 9999)
   const phoneNumber = ctx.request.body.phoneNumber
-  client
-    .request(
-      'SendSms',
-      {
-        SignName: '阿里云短信测试',
-        TemplateCode: 'SMS_154950909',
-        PhoneNumbers: phoneNumber,
-        TemplateParam: '{"code":"1234"}',
-        TemplateParam: `{'code': ${code}}`
-      },
-      {
-        method: 'POST',
-        formatParams: false
-      }
-    )
-    .then(
-      () => {
-        PHONE_NUMBER_CODE = code
-        ctx.body = {
-          code: 200,
-          msg: '请留意手机短信~'
+  // 检查phoneNumber是否存在
+  const result = await userService.isHasPhone(phoneNumber)
+  if (result.length) {
+    ctx.body = {
+      code: 200,
+      msg: '手机号码已注册',
+      result: result[0]
+    }
+  } else {
+    try {
+      console.log('fffffff');
+      await client.request(
+        'SendSms',
+        {
+          SignName: '阿里云短信测试',
+          TemplateCode: 'SMS_154950909',
+          PhoneNumbers: phoneNumber,
+          TemplateParam: `{'code': ${code}}`
+        },
+        {
+          method: 'POST',
+          formatParams: false
         }
-      },
-      (err) => {
-        console.log(err)
+      )
+    } catch (error) {
+      console.log(err)
+      ctx.body = {
+        code: 400,
+        msg: '手机短信失败~',
+        err
       }
-    )
+    }
+    PHONE_NUMBER_CODE = code
+    ctx.body = {
+      code: 200,
+      msg: '请留意手机短信~',
+      result: {}
+    }
+  }
 }
 
 /**
@@ -107,6 +156,7 @@ const sendShortMessage = async (ctx, next) => {
  * @param {*} next
  */
 const verifyEmail = async (ctx, next) => {
+  console.log(222)
   if (ctx.request.body.emailCode != EMAIL_CODE) {
     const error = new Error(errorTypes.USER_EMAIL_CODE_IS_NOT_MATCH)
     return ctx.app.emit('error', error, ctx)
@@ -120,6 +170,7 @@ const verifyEmail = async (ctx, next) => {
  * @param {*} next
  */
 const verifyPhoneNumber = async (ctx, next) => {
+  console.log(333)
   if (ctx.request.body.phoneNumberCode != PHONE_NUMBER_CODE) {
     const error = new Error(errorTypes.USER_PHONE_NUMBER_CODE_IS_NOT_MATCH)
     return ctx.app.emit('error', error, ctx)
@@ -128,10 +179,11 @@ const verifyPhoneNumber = async (ctx, next) => {
 }
 /**
  * 密码加密
- * @param {*} ctx 
- * @param {*} next 
+ * @param {*} ctx
+ * @param {*} next
  */
 const handlePassword = async (ctx, next) => {
+  console.log(444)
   ctx.request.body.password = md5Password(ctx.request.body.password)
   await next()
 }
@@ -143,5 +195,6 @@ module.exports = {
   sendShortMessage,
   verifyEmail,
   verifyPhoneNumber,
-  handlePassword
+  handlePassword,
+  verifyUsername
 }

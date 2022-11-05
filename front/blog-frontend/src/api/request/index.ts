@@ -32,10 +32,15 @@ class QR_Request {
 
   request<T = any>(config: AxiosRequestConfig): Promise<T> {
     // 默认是有loading的,防止下面修改,影响后续接口的loading效果
-    return new Promise((resolve) => {
-      this.instance.request<any, T>(config).then((res) => {
-        resolve(res)
-      })
+    return new Promise((resolve, reject) => {
+      this.instance.request<any, T>(config).then(
+        (res) => {
+          resolve(res)
+        },
+        (err) => {
+          reject(err)
+        }
+      )
     })
   }
 

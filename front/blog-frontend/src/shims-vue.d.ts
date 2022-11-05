@@ -7,3 +7,4 @@ declare module '*.vue' {
 
 declare module 'vue-particles'
 declare module '_dx'
+declare module 'citys'
