@@ -1,4 +1,6 @@
 const dotenv = require('dotenv')
+const fs = require('fs')
+const path = require('path')
 const Core = require('@alicloud/pop-core')
 // 发送邮箱配置
 const nodemailer = require('nodemailer')
@@ -99,6 +101,8 @@ const client = new Core({
  * 否则读取不到.env变量的值
  */
 dotenv.config()
+const PRIVATE_KEY = fs.readFileSync(path.resolve(__dirname, './keys/private.key'))
+const PUBLIC_KEY = fs.readFileSync(path.resolve(__dirname, './keys/public.key'))
 const { APP_PORT, MYSQL_HOST, MYSQL_PORT, MYSQL_DATABASE, MYSQL_USER, MYSQL_PASSWORD } = process.env
 
-module.exports = { APP_PORT, MYSQL_HOST, MYSQL_PORT, MYSQL_DATABASE, MYSQL_USER, MYSQL_PASSWORD, obj, client }
+module.exports = { PRIVATE_KEY, PUBLIC_KEY, APP_PORT, MYSQL_HOST, MYSQL_PORT, MYSQL_DATABASE, MYSQL_USER, MYSQL_PASSWORD, obj, client }

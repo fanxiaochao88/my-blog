@@ -3,11 +3,11 @@
     <div class="top-content">
       <div class="left-content">
         <img v-if="isLight" src="@/assets/img/pinterest_board_photo.png" alt="" />
-        <img v-else src="@/assets/img/logo_transparent.png" alt="">
+        <img v-else src="@/assets/img/logo_transparent.png" alt="" />
         <h3>标题位置</h3>
       </div>
       <div class="middle-content">
-        <div class="top-menu-item" :class="{active: currentIndex == index}" @click="handleClickMenu(index)" v-for="(item, index) in topMenu" :key="item.name">
+        <div class="top-menu-item" :class="{ active: currentIndex == index }" @click="handleClickMenu(index)" v-for="(item, index) in topMenu" :key="item.name">
           {{ item.name }}
         </div>
       </div>
@@ -16,7 +16,7 @@
           <el-input @focus="getFocus" @blur="loseFocus" size="large" placeholder="输入文章关键词" :suffix-icon="Search" />
         </div>
         <div class="item2" :style="{ width: isFocus ? '0' : '106px' }">
-          <el-button type="primary" plain>
+          <el-button type="primary" plain @click="gotoEdit">
             编辑文章&nbsp;<el-icon><EditPen /></el-icon>
           </el-button>
         </div>
@@ -26,7 +26,14 @@
             <el-icon size="22px"><ChatDotRound /></el-icon>
           </el-badge>
           <div>
-            <el-avatar v-if="loginStore.token" :size="35" src="https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png" />
+            <el-dropdown v-if="loginStore.token">
+              <el-avatar :size="35" :src="loginStore.avatarUrl" />
+              <template #dropdown>
+                <el-dropdown-menu>
+                  <el-dropdown-item @click="loginOut">退出登录</el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
             <el-link type="primary" v-else @click="gotoLogin">登录/注册</el-link>
           </div>
         </div>
@@ -77,6 +84,24 @@ const loginStore = useLoginStore()
 const router = useRouter()
 const gotoLogin = () => {
   router.replace('/login')
+}
+/**
+ * 退出登录
+ */
+const loginOut = () => {
+  localStorage.clear()
+  loginStore.changeAvatarUrl('')
+  loginStore.changeToken('')
+}
+/**
+ * 去编辑
+ */
+const gotoEdit = () => {
+  if (loginStore.token) {
+    router.push('/edit')
+  } else {
+    router.push('/login')
+  }
 }
 </script>
 <style lang="less" scoped>

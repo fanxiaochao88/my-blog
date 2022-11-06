@@ -11,7 +11,7 @@ class QR_Request {
     // 所有实例对象(类的级别)都有的拦截器
     this.instance.interceptors.request.use(
       (config) => {
-        const token = localCache.getCache('token')
+        const token = window.localStorage.getItem('token')
         token && config.headers && (config.headers['accessToken'] = token)
         return config
       },

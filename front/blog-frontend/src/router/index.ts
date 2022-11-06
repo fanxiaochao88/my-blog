@@ -18,6 +18,13 @@ const routes: Array<RouteRecordRaw> = [
     }
   },
   {
+    path: '/edit',
+    component: () => import('@/views/edit/editPage.vue'),
+    meta: {
+      title: '编辑'
+    }
+  },
+  {
     path: '/login',
     component: () => import('@/views/login/login.vue'),
     meta: {

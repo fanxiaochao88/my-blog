@@ -12,6 +12,21 @@ const errorHandle = (error, ctx) => {
     case errorTypes.USER_PHONE_NUMBER_CODE_IS_NOT_MATCH:
       status = 400
       break
+    case errorTypes.USER_USERNAME_IS_NOT_EXISTS:
+      status = 400
+      break
+    case errorTypes.USER_CAP_IS_NOT_MATCH:
+      status = 400
+      break
+    case errorTypes.PASSWORD_IS_NOT_RIGHT:
+      status = 400
+      break
+    case errorTypes.TOKEN_IS_INVALID:
+      status = 400
+      break
+    default:
+      status = 400
+      error.message = '暂未处理的错误'
   }
 
   ctx.status = status

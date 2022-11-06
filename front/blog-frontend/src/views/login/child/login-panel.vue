@@ -2,11 +2,13 @@
   <div class="login-panel-wrap">
     <div class="title">欢迎登录</div>
     <el-tabs v-model="activeName">
-      <el-tab-pane label="账号密码" name="password">账号密码</el-tab-pane>
+      <el-tab-pane label="账号密码" name="password">
+        <usernameLoginVue ref="userNameLoginRef" />
+      </el-tab-pane>
       <el-tab-pane label="手机号码" name="phone">手机号码</el-tab-pane>
       <el-tab-pane label="邮箱" name="email">邮箱</el-tab-pane>
     </el-tabs>
-    <el-button type="primary" style="width: 100%">登录</el-button>
+    <el-button type="primary" style="width: 100%" @click="gotoLogin" v-loading="loginBtnLoading">登录</el-button>
     <div class="middle">
       <el-checkbox><span style="color: #000">记住登录</span></el-checkbox>
       <span class="forget-password">忘记密码</span>
@@ -25,6 +27,7 @@
   </div>
 </template>
 <script lang="ts" setup>
+import usernameLoginVue from './username-login.vue';
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 /**
@@ -51,6 +54,17 @@ const icons = [
 const router = useRouter()
 const gotoRegister = () => {
   router.replace('/register')
+}
+/**
+ * 登录
+ */
+const loginBtnLoading = ref(false)
+const userNameLoginRef = ref<InstanceType<typeof usernameLoginVue>>()
+const gotoLogin = () => {
+  loginBtnLoading.value = true
+  userNameLoginRef.value?.login(() => {
+    loginBtnLoading.value = false
+  })
 }
 </script>
 <style lang="less" scoped>

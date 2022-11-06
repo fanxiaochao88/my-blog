@@ -19,18 +19,33 @@ class RegisterAPI {
       data
     })
   }
+  /**
+   * 获取手机验证码
+   * @param data 
+   * @returns 
+   */
   getPhoneCode(data: any) {
     return request.post({
       url: RegisterAPI_URL.getPhoneCode,
       data
     })
   }
+  /**
+   * 注册
+   * @param data 
+   * @returns 
+   */
   register(data: any) {
     return request.post({
       url: RegisterAPI_URL.register,
       data
     })
   }
+  /**
+   * 校验用户名是否唯一
+   * @param data 
+   * @returns 
+   */
   verifyUsername(data: any) {
     return request.post({
       url: RegisterAPI_URL.verifyUsername,

@@ -4,8 +4,12 @@ const { md5Password } = require('../utils/password-handle')
 const errorTypes = require('../constants/error-types')
 const userService = require('../service/user.service')
 
+const jwt = require('jsonwebtoken')
+const config = require('../app/config')
+
 let EMAIL_CODE = 'abcd'
 let PHONE_NUMBER_CODE = '1234'
+let CAP_TEXT = '111111'
 /**
  * 校验用户注册的信息
  * @param {*} ctx
@@ -19,6 +23,7 @@ const verifyBodyInfo = async (ctx, next) => {
     const error = new Error(errorTypes.USER_PARAMS_IS_NOT_EMPTY)
     return ctx.app.emit('error', error, ctx)
   }
+
   await next()
 }
 
@@ -58,7 +63,7 @@ const createCaptcha = async (ctx, next) => {
     captcha = svgCaptcha.create({
       size: 4, // 验证码长度
       ignoreChars: '0o1i', // 排除某些字符
-      noise: 1, // 干扰线数量
+      noise: 4, // 干扰线数量
       color: true, // 验证码字符是否有颜色, 默认没有, 如果设定了背景, 则默认有
       background: '#cc9966' // 验证码图片背景颜色
     })
@@ -66,13 +71,14 @@ const createCaptcha = async (ctx, next) => {
     captcha = svgCaptcha.createMathExpr({
       size: 4, // 验证码长度
       ignoreChars: '0o1i', // 排除某些字符
-      noise: 1, // 干扰线数量
+      noise: 4, // 干扰线数量
       color: true, // 验证码字符是否有颜色, 默认没有, 如果设定了背景, 则默认有
       background: '#cc9966' // 验证码图片背景颜色
     })
   }
   ctx.response.set('content-type', 'svg')
-  ctx.body = captcha
+  CAP_TEXT = captcha.text
+  ctx.body = captcha.data
 }
 
 /**
@@ -119,7 +125,7 @@ const sendShortMessage = async (ctx, next) => {
     }
   } else {
     try {
-      console.log('fffffff');
+      console.log('fffffff')
       await client.request(
         'SendSms',
         {
@@ -188,6 +194,66 @@ const handlePassword = async (ctx, next) => {
   await next()
 }
 
+/**
+ * 登录参数的校验
+ * @param {*} ctx
+ * @param {*} next
+ * @returns
+ */
+const verifyLoginData = async (ctx, next) => {
+  const { username, password, capText } = ctx.request.body
+  // 校验验证码
+  if (capText != CAP_TEXT) {
+    const error = new Error(errorTypes.USER_CAP_IS_NOT_MATCH)
+    return ctx.app.emit('error', error, ctx)
+  }
+  // 校验是否为空
+  if (!username || !password || !capText) {
+    const error = new Error(errorTypes.USER_PARAMS_IS_NOT_EMPTY)
+    return ctx.app.emit('error', error, ctx)
+  }
+  // 校验用户名是否存在
+  const result = await userService.verifyUsername(username)
+  if (!result.length) {
+    const error = new Error(errorTypes.USER_USERNAME_IS_NOT_EXISTS)
+    return ctx.app.emit('error', error, ctx)
+  }
+  // 校验密码是否匹配
+  if (md5Password(password) != result[0].password) {
+    const error = new Error(errorTypes.PASSWORD_IS_NOT_RIGHT)
+    return ctx.app.emit('error', error, ctx)
+  }
+
+  ctx.user = result[0]
+  await next()
+}
+
+/**
+ * token验证中间件
+ * @param {*} ctx 
+ * @param {*} next 
+ * @returns 
+ */
+const verifyLoginAuth = async (ctx, next) => {
+  const authorization = ctx.headers.authorization
+  if (!authorization) {
+    const error = new Error(errorTypes.TOKEN_IS_INVALID)
+    return ctx.app.emit('error', error, ctx)
+  }
+  const token = authorization.replace('Bearer ', '')
+  try {
+    const result = jwt.verify(token, config.PUBLIC_KEY, {
+      algorithms: ['RS256']
+    })
+    ctx.user = result
+    await next()
+  } catch (e) {
+    // 验证不通过
+    const error = new Error(errorTypes.TOKEN_IS_INVALID)
+    return ctx.app.emit('error', error, ctx)
+  }
+}
+
 module.exports = {
   verifyBodyInfo,
   createCaptcha,
@@ -196,5 +262,7 @@ module.exports = {
   verifyEmail,
   verifyPhoneNumber,
   handlePassword,
-  verifyUsername
+  verifyUsername,
+  verifyLoginData,
+  verifyLoginAuth
 }

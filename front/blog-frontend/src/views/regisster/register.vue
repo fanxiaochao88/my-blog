@@ -102,7 +102,7 @@
         <template #sub-title>
           <span>{{ resultSecond }}</span>
           <span>秒后跳转登录页,</span>
-          <span>去登录</span>
+          <span style="font-size: 14px; color: #409eff; cursor: pointer;">去登录</span>
         </template>
       </el-result>
     </div>
