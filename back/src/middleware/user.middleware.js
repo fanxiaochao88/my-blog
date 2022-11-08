@@ -235,6 +235,7 @@ const verifyLoginData = async (ctx, next) => {
  * @returns 
  */
 const verifyLoginAuth = async (ctx, next) => {
+  console.log('loginauth');
   const authorization = ctx.headers.authorization
   if (!authorization) {
     const error = new Error(errorTypes.TOKEN_IS_INVALID)

@@ -12,7 +12,7 @@ class QR_Request {
     this.instance.interceptors.request.use(
       (config) => {
         const token = window.localStorage.getItem('token')
-        token && config.headers && (config.headers['accessToken'] = token)
+        token && config.headers && (config.headers['Authorization'] = `Bearer ${token}`)
         return config
       },
       (err) => {

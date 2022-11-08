@@ -11,6 +11,10 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: '/index',
         component: () => import('@/views/list/homeList.vue')
+      },
+      {
+        path: '/detail/:momentId',
+        component: () => import('@/views/detail/detailPage.vue')
       }
     ],
     meta: {
@@ -18,7 +22,7 @@ const routes: Array<RouteRecordRaw> = [
     }
   },
   {
-    path: '/edit',
+    path: '/edit/:momentId',
     component: () => import('@/views/edit/editPage.vue'),
     meta: {
       title: '编辑'

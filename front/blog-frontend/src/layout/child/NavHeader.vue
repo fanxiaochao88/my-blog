@@ -39,7 +39,7 @@
         </div>
       </div>
     </div>
-    <div class="bottom-content">33</div>
+    <!-- <div class="bottom-content">33</div> -->
   </div>
 </template>
 <script lang="ts" setup>
@@ -47,6 +47,7 @@ import { Search, Sunny, Moon } from '@element-plus/icons-vue'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useLoginStore } from '@/store/login/index'
+import editAPI from '@/api/editAPI'
 /**
  * element-plus暗黑模式切换
  */
@@ -95,10 +96,17 @@ const loginOut = () => {
 }
 /**
  * 去编辑
+ * 在编辑页面需要图片上传, 如果文章暂未创建, 上传的图片没法关联文章
+ * 所以, 跳转编辑页面之前, 首先创建文章, 只不过文章内容为空, 返回文章id, 跳转编辑带过去, 1. 配图可以关联  2. 在编辑页面的发布变为修改当前文章
  */
-const gotoEdit = () => {
+const gotoEdit = async () => {
   if (loginStore.token) {
-    router.push('/edit')
+    // 跳转之前首先发送请求创建文章, 返回文章id, 再进行跳转
+    const result = await editAPI.publishMoment({
+      title: '',
+      content: ''
+    })
+    router.push('/edit/' + result.result.insertId)
   } else {
     router.push('/login')
   }
