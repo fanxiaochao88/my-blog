@@ -18,8 +18,14 @@
       <el-avatar :size="50" :src="userInfo.avatarUrl" />
       <div class="userInfo-right">
         <div>{{ userInfo.nickname }}</div>
-        <div>{{ moment(createTime).format('YYYY-MM-DD  HH:mm:ss') }}</div>
+        <div>
+          {{ moment(createTime).format('YYYY-MM-DD  HH:mm:ss') }} · 阅读
+          {{ viewCount_ }}
+        </div>
       </div>
+    </div>
+    <div class="main-cover">
+      <img :src="mainCoverUrl" alt="" />
     </div>
     <Viewer :value="value" :plugins="plugins" />
   </div>
@@ -38,11 +44,13 @@ import { onMounted, ref, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
 import momentAPI from '@/api/momentAPI'
 const route = useRoute()
-const { momentId } = route.params
+const { viewCount, momentId } = route.query
 const value = ref('')
 const title = ref('')
 const createTime = ref('')
 const userInfo = ref<any>({})
+const viewCount_ = ref(0)
+const mainCoverUrl = ref('')
 interface Menu {
   type: string
   text: string
@@ -51,16 +59,26 @@ interface Menu {
 }
 const menuList = ref<any[]>()
 let debounced: any
-const plugins = [gfm(), gemoji(), highlight(),mediumZoom({
-  background: 'rgba(255, 255, 255, .7)' // 配置图片点击放大
-})]
+const plugins = [
+  gfm(),
+  gemoji(),
+  highlight(),
+  mediumZoom({
+    background: 'rgba(255, 255, 255, .7)' // 配置图片点击放大
+  })
+]
 // 获取文章详情
 onMounted(async () => {
-  const result = await momentAPI.getMomentDetailById(momentId)
+  const result = await momentAPI.getMomentDetailById({
+    viewCount,
+    momentId
+  })
   value.value = result.result.content
   title.value = result.result.title
   createTime.value = result.result.createAt
+  viewCount_.value = result.result.view_count
   userInfo.value = result.result.author
+  mainCoverUrl.value = result.result.main_cover_url
   // 获取目录列表
   nextTick(() => {
     getMenuList(['H1', 'H2', 'H3', 'H4'])
@@ -137,6 +155,11 @@ const debounce = (func: any, wait: any) => {
 </script>
 
 <style lang="less" scoped>
+:deep(.markdown-body) {
+  img {
+    max-width: 98% !important;
+  }
+}
 .detail-page-wrap {
   width: 100%;
   height: 100%;
@@ -150,6 +173,7 @@ const debounce = (func: any, wait: any) => {
     height: 48px;
     display: flex;
     align-items: center;
+    margin-bottom: 20px;
     .userInfo-right {
       height: 100%;
       margin-left: 15px;
@@ -162,6 +186,14 @@ const debounce = (func: any, wait: any) => {
       & div:nth-child(1) {
         color: #515756;
       }
+    }
+  }
+  .main-cover {
+    width: 98%;
+    height: 425px;
+    img {
+      width: 100%;
+      height: 100%;
     }
   }
   &::-webkit-scrollbar {

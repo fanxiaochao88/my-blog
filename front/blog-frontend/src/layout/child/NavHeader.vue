@@ -13,7 +13,11 @@
       </div>
       <div class="right-content">
         <div class="item1" :style="{ width: isFocus ? '416px' : '300px', marginRight: isFocus ? '0' : '10px' }">
-          <el-input @focus="getFocus" @blur="loseFocus" size="large" placeholder="输入文章关键词" :suffix-icon="Search" />
+          <el-input :class="{ active: isFocus }" @focus="getFocus" @[eventName]="loseFocus" v-model="searchStr" size="large" placeholder="输入文章关键词">
+            <template #suffix>
+              <el-icon :color="isFocus ? '#409eff' : ''"><Search /></el-icon>
+            </template>
+          </el-input>
         </div>
         <div class="item2" :style="{ width: isFocus ? '0' : '106px' }">
           <el-button type="primary" plain @click="gotoEdit">
@@ -44,9 +48,10 @@
 </template>
 <script lang="ts" setup>
 import { Search, Sunny, Moon } from '@element-plus/icons-vue'
-import { ref } from 'vue'
+import { nextTick, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useLoginStore } from '@/store/login/index'
+import { useOtherStore } from '@/store/other/index'
 import editAPI from '@/api/editAPI'
 /**
  * element-plus暗黑模式切换
@@ -67,16 +72,39 @@ const topMenu = [
 const currentIndex = ref(0)
 const handleClickMenu = (index: number) => {
   currentIndex.value = index
+  if (index == 0) {
+    otherStore.changeIsSearch('')
+    searchStr.value = ''
+    router.push('/')
+  }
+  if (index == 1) {
+    router.push('/todo')
+  }
 }
 /**
  * 输入框逻辑
  */
+const eventName = ref('')
+const searchStr = ref('')
 const isFocus = ref(false)
 const getFocus = () => {
   isFocus.value = true
+  eventName.value = 'blur'
 }
 const loseFocus = () => {
   isFocus.value = false
+}
+const otherStore = useOtherStore()
+// 监听回车按钮进行搜素
+window.addEventListener('keydown', (e: Event) => {
+  if (e.keyCode == 13) {
+    gotoSearch()
+  }
+})
+const gotoSearch = () => {
+  if (!searchStr.value) return
+  otherStore.changeIsSearch(searchStr.value)
+  router.push('/index')
 }
 /**
  * 登录判断
@@ -117,6 +145,14 @@ const gotoEdit = async () => {
 }
 </script>
 <style lang="less" scoped>
+:deep(.el-input__suffix) {
+  height: 80%;
+  padding-right: 10px;
+  background-color: #f2f3f5;
+  position: relative;
+  left: 10px;
+  cursor: pointer;
+}
 .active {
   color: #1e80ff !important;
 }
@@ -167,6 +203,9 @@ const gotoEdit = async () => {
         width: 300px;
         margin-right: 10px;
         transition: all 0.3s;
+        :deep(.active .el-input__suffix) {
+          background-color: #f2f3f5;
+        }
       }
       .item2 {
         width: 106px;

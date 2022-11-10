@@ -13,8 +13,12 @@ const routes: Array<RouteRecordRaw> = [
         component: () => import('@/views/list/homeList.vue')
       },
       {
-        path: '/detail/:momentId',
+        path: '/detail',
         component: () => import('@/views/detail/detailPage.vue')
+      },
+      {
+        path: '/todo',
+        component: () => import('@/views/todo/todoPage.vue')
       }
     ],
     meta: {

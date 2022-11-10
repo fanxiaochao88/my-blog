@@ -6,15 +6,22 @@ enum MOMENT_API_URL {
 }
 
 class MomentAPI {
-  getMomentDetailById(id: any) {
+  getMomentDetailById(query: any) {
     return request.get({
-      url: MOMENT_API_URL.getMomentDetailById + id,
+      url: MOMENT_API_URL.getMomentDetailById,
+      params: {
+        viewCount: query.viewCount,
+        momentId: query.momentId
+      }
     })
   }
 
-  getMomentList() {
+  getMomentList(keyword: string) {
     return request.get({
-      url: MOMENT_API_URL.getMomentList
+      url: MOMENT_API_URL.getMomentList,
+      params: {
+        keyword
+      }
     })
   }
 }

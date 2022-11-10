@@ -10,7 +10,12 @@ class MomentController {
     // 拿到数据
     const userId = ctx.user.id
     const { title, content, labelNames, labelIds, description, mainCoverUrl } = ctx.request.body
-    const result = await momentService.create(userId, title, content, labelNames, labelIds, description, mainCoverUrl)
+    let result
+    try {
+      result = await momentService.create(userId, title, content, labelNames, labelIds, description, mainCoverUrl)
+    } catch (error) {
+      console.log(error);
+    }
     ctx.body = {
       code: 200,
       msg: '上传成功',
@@ -24,7 +29,12 @@ class MomentController {
    * @param {*} body
    */
   async getMomentDetailById(ctx, body) {
-    const { momentId } = ctx.request.params
+    const { viewCount, momentId } = ctx.request.query
+    try {
+     await momentService.addMomentViewCount(momentId, +viewCount + 1)
+    } catch (error) {
+      console.log(error);
+    }
     const result = await momentService.getMomentDetailById(momentId)
     ctx.body = {
       code: 200,
@@ -53,7 +63,8 @@ class MomentController {
   }
 
   async list(ctx, next) {
-    const result = await momentService.list()
+    const { keyword } = ctx.request.query
+    const result = await momentService.list(keyword)
     ctx.body = {
       code: 200,
       msg: '列表请求成功',

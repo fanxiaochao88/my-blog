@@ -6,20 +6,22 @@
         <el-divider v-if="!(index == labels.length - 1)" direction="vertical" />
       </div>
     </div>
-    <listItem v-for="item in momentList" :key="item.id" :dataItem="item" @click="gotoDetail(item.id)" />
+    <listItem v-for="item in momentList" :key="item.id" :dataItem="item" @click="gotoDetail(item.id, item.view_count)" />
   </div>
 </template>
 <script lang="ts" setup>
 import listItem from './listItem.vue'
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import editAPI from '@/api/editAPI'
 import momentAPI from '@/api/momentAPI'
+import { useRouter } from 'vue-router'
 import { Message } from '@/utils/message'
-import { useRouter } from "vue-router";
+import { useOtherStore } from '@/store/other/index'
 // 获取标签数据
 const currentIndex = ref(0)
 const labels = ref<any[]>([])
 const momentList = ref<any[]>([])
+const otherStore = useOtherStore()
 onMounted(async () => {
   // 请求标签数据
   const res = await editAPI.getLabels()
@@ -29,19 +31,41 @@ onMounted(async () => {
     label: '全部'
   })
   // 请求列表数据
-  const list = await momentAPI.getMomentList()
+  const list = await momentAPI.getMomentList(otherStore.searchStr)
   Message(list)
+  otherStore.searchStr && handleKeyword(list.result)
   momentList.value = list.result
+  otherStore.searchStr = ''
 })
+watch(
+  () => otherStore.isSearch,
+  async () => {
+    const list = await momentAPI.getMomentList(otherStore.searchStr)
+    Message(list)
+    otherStore.searchStr && handleKeyword(list.result)
+    momentList.value = list.result
+    otherStore.searchStr = ''
+  }
+)
+// 处理关键字
+const handleKeyword = (list: any) => {
+  let replaceReg = new RegExp(otherStore.searchStr, 'g')
+  let replaceContent = '<strong style="color:#f03535">' + otherStore.searchStr + '</strong>'
+  list.map((item: any) => {
+    if (item.title.includes(otherStore.searchStr)) {
+      item.title = item.title.replace(replaceReg, replaceContent)
+    }
+  })
+}
 // 标签点击
 const handleMenuClick = (index: number) => {
   currentIndex.value = index
 }
 // 跳转详情
 const router = useRouter()
-const gotoDetail = (id: any) => {
-  window.open('http://localhost:8080/detail/' + id)
-  // router.push('/detail/' + id)
+const gotoDetail = (id: any, count: any) => {
+  window.open('http://localhost:8081/detail' + '?viewCount=' + count + '&momentId=' + id)
+  // router.push('/detail' + '?viewCount=' + count + '&momentId=' + id)
 }
 </script>
 <style lang="less" scoped>

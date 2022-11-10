@@ -3,29 +3,27 @@
     <div class="item-header">
       <span class="nickname">{{ props.dataItem?.author.nickname }}</span>
       <el-divider direction="vertical" />
-      <span>{{ moment(props.dataItem?.createAt).format('YYYY-MM-DD') }}</span>
+      <span>{{ moment(props.dataItem?.createAt).format("YYYY-MM-DD") }}</span>
       <el-divider direction="vertical" />
-      <span>{{ props.dataItem?.label_names.replace(/,/g, ' · ') }}</span>
+      <span>{{ props.dataItem?.label_names.replace(/,/g, " · ") }}</span>
     </div>
     <div class="item-content">
       <div class="content-left">
-        <div class="title">
-          {{ props.dataItem?.title }}
-        </div>
+        <div v-html="props.dataItem?.title" class="title"></div>
         <div class="description">
           {{ props.dataItem?.description }}
         </div>
       </div>
       <div class="content-right">
-        <img :src="props.dataItem?.main_cover_url" alt="">
+        <img :src="props.dataItem?.main_cover_url" alt="" />
       </div>
     </div>
     <div class="item-bottom">
       <div>
-        <el-icon><View /></el-icon><span>{{ 100 }}</span>
+        <el-icon><View /></el-icon><span>{{ props.dataItem?.view_count }}</span>
       </div>
       <div class="dianzan">
-        <img src="@/assets/img/dianzan.png" alt=""><span>{{ 100 }}</span>
+        <img src="@/assets/img/dianzan.png" alt="" /><span>{{ 100 }}</span>
       </div>
       <div>
         <el-icon><ChatRound /></el-icon><span>{{ 100 }}</span>
@@ -35,11 +33,11 @@
   </div>
 </template>
 <script lang="ts" setup>
-import moment from 'moment'
-import { defineProps } from 'vue'
+import moment from "moment";
+import { defineProps } from "vue";
 const props = defineProps({
-  dataItem: Object
-})
+  dataItem: Object,
+});
 </script>
 <style lang="less" scoped>
 :deep(.el-divider--horizontal) {
@@ -52,6 +50,7 @@ const props = defineProps({
   height: 141px;
   padding-right: 20px;
   padding-top: 10px;
+  margin-bottom: 10px;
   .item-header {
     font-size: 14px;
     margin-bottom: 15px;
@@ -96,7 +95,7 @@ const props = defineProps({
     display: flex;
     div {
       .el-icon {
-        color: #86909c
+        color: #86909c;
       }
       display: flex;
       align-items: center;
@@ -107,11 +106,11 @@ const props = defineProps({
       }
       &:not(:nth-child(1)):hover {
         span {
-          color: #409EFF;
+          color: #409eff;
         }
       }
     }
-    
+
     .dianzan {
       img {
         width: 14px;
