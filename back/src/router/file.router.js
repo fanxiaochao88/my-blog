@@ -1,6 +1,6 @@
 const Router = require('koa-router')
-const { fileReceiverHandle, filesReceiverHandle } = require('../middleware/file.middleware')
-const { saveAvatar, avatarInfo, savePicture, pictureInfo } = require('../controller/file.controller') 
+const { fileReceiverHandle, filesReceiverHandle, fileReceiverHandleCover } = require('../middleware/file.middleware')
+const { saveAvatar, avatarInfo, savePicture, pictureInfo, saveMainCover, mainCoverInfo } = require('../controller/file.controller') 
 const { verifyLoginAuth } = require('../middleware/user.middleware')
 
 const fileRouter = new Router({prefix: '/upload'})
@@ -14,5 +14,10 @@ fileRouter.get('/avatar/:avatarId', avatarInfo)
 fileRouter.post('/picture/:momentId', verifyLoginAuth, filesReceiverHandle, savePicture)
 // 获取文章配图接口
 fileRouter.get('/picture/:filename', pictureInfo)
+
+// 文章封面图片上传
+fileRouter.post('/mainCover/:momentId', verifyLoginAuth, fileReceiverHandleCover, saveMainCover)
+// 获取文章封面接口
+fileRouter.get('/mainCover/:filename', mainCoverInfo)
 
 module.exports = fileRouter

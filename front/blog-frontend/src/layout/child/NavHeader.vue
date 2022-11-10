@@ -104,7 +104,11 @@ const gotoEdit = async () => {
     // 跳转之前首先发送请求创建文章, 返回文章id, 再进行跳转
     const result = await editAPI.publishMoment({
       title: '',
-      content: ''
+      content: '',
+      labelNames: '',
+      labelIds: '',
+      description: '',
+      mainCoverUrl: ''
     })
     router.push('/edit/' + result.result.insertId)
   } else {

@@ -105,4 +105,56 @@ const PRIVATE_KEY = fs.readFileSync(path.resolve(__dirname, './keys/private.key'
 const PUBLIC_KEY = fs.readFileSync(path.resolve(__dirname, './keys/public.key'))
 const { APP_PORT, MYSQL_HOST, MYSQL_PORT, MYSQL_DATABASE, MYSQL_USER, MYSQL_PASSWORD } = process.env
 
-module.exports = { PRIVATE_KEY, PUBLIC_KEY, APP_PORT, MYSQL_HOST, MYSQL_PORT, MYSQL_DATABASE, MYSQL_USER, MYSQL_PASSWORD, obj, client }
+// 文章标签
+const LABELS = [
+  {
+    label: '前端',
+    id: 1
+  },
+  {
+    label: '后端',
+    id: 2
+  },
+  {
+    label: '移动端',
+    id: 3
+  },
+  {
+    label: 'PC端',
+    id: 4
+  },
+  {
+    label: 'vue',
+    id: 5
+  },
+  {
+    label: 'react',
+    id: 6
+  },
+  {
+    label: 'angular',
+    id: 7
+  },
+  {
+    label: 'js',
+    id: 8
+  },
+  {
+    label: 'html',
+    id: 9
+  },
+  {
+    label: 'css',
+    id: 10
+  },
+  {
+    label: 'nodejs',
+    id: 11
+  },
+  {
+    label: '数据库',
+    id: 12
+  }
+]
+
+module.exports = { PRIVATE_KEY, PUBLIC_KEY, APP_PORT, MYSQL_HOST, MYSQL_PORT, MYSQL_DATABASE, MYSQL_USER, MYSQL_PASSWORD, obj, client, LABELS }

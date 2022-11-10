@@ -45,6 +45,22 @@ class FileService {
     const result = await connection.execute(statement, [id])
     return result[0][0]
   }
+
+  async saveMainCover(momentId, mimetype, filename, size) {
+    const statement = `
+      INSERT INTO main_cover ( moment_id, mimetype, filename, size) VALUES (?,?,?,?);
+    `
+    const result = await connection.execute(statement, [momentId, mimetype, filename, size])
+    return result[0]
+  }
+
+  async getMainCoverByFilename(filename) {
+    const statement = `
+      SELECT * FROM main_cover WHERE filename = ?;
+    `
+    const result = await connection.execute(statement, [filename])
+    return result[0][0]
+  }
 }
 
 module.exports = new FileService()

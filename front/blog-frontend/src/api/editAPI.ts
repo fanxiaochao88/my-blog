@@ -3,7 +3,8 @@ import request from './index'
 enum Edit_API_URL {
   publishMoment = '/moment',
   updateMomentById = '/moment/',
-  uploadImage = '/upload/picture/'
+  uploadImage = '/upload/picture/',
+  getLabels = '/moment/label/labelList'
 }
 
 class EditAPI {
@@ -30,6 +31,12 @@ class EditAPI {
       headers: {
         'Content-Type': 'multipart/form-data'
       }
+    })
+  }
+
+  getLabels() {
+    return request.get({
+      url: Edit_API_URL.getLabels
     })
   }
 }

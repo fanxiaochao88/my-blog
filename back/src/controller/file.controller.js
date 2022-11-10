@@ -46,6 +46,24 @@ class FileController {
     ctx.response.set('content-type', result.mimetype)
     ctx.body = fs.createReadStream('./uploads/picture/' + filename)
   }
+
+  async saveMainCover(ctx, next) {
+    const { mimetype, filename, size } = ctx.req.file
+    const { momentId } = ctx.request.params
+    await fileService.saveMainCover(momentId, mimetype, filename, size)
+    ctx.body = {
+      code: 200,
+      msg: '文件上传成功',
+      mainCoverUrl: 'http://localhost:8001/upload/mainCover/' + filename
+    }
+  }
+
+  async mainCoverInfo(ctx, next) {
+    const { filename } = ctx.request.params
+    const result = await fileService.getMainCoverByFilename(filename)
+    ctx.response.set('content-type', result.mimetype)
+    ctx.body = fs.createReadStream('./uploads/mainCover/' + filename)
+  }
 }
 
 module.exports = new FileController()
