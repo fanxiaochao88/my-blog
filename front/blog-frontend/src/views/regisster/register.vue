@@ -79,7 +79,7 @@
                 <el-input v-model="stepThreeForm.githubAddress" placeholder="请输入个人git仓库地址" />
               </el-form-item>
               <el-form-item label="用户头像">
-                <el-upload class="avatar-uploader" action="http://localhost:8001/upload/avatar" :show-file-list="false" :on-success="handleAvatarSuccess" name="avatar">
+                <el-upload class="avatar-uploader" action="http://49.233.62.36:8001/upload/avatar" :show-file-list="false" :on-success="handleAvatarSuccess" name="avatar">
                   <img v-if="imageUrl" :src="imageUrl" class="avatar" />
                   <el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
                 </el-upload>

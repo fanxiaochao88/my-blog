@@ -64,7 +64,7 @@ const handleMenuClick = (index: number) => {
 // 跳转详情
 const router = useRouter()
 const gotoDetail = (id: any, count: any) => {
-  window.open('http://localhost:8081/detail' + '?viewCount=' + count + '&momentId=' + id)
+  window.open('http://49.233.62.36:8002/detail' + '?viewCount=' + count + '&momentId=' + id)
   // router.push('/detail' + '?viewCount=' + count + '&momentId=' + id)
 }
 </script>

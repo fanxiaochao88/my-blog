@@ -25,7 +25,7 @@
             <el-form-item label="文章封面">
               <el-upload
                 class="avatar-uploader"
-                :action="'http://localhost:8001/upload/mainCover/' + momentId"
+                :action="'http://49.233.62.36:8001/upload/mainCover/' + momentId"
                 :headers="{ Authorization: token }"
                 :show-file-list="false"
                 :on-success="handleAvatarSuccess"
