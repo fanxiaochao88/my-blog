@@ -36,7 +36,7 @@ class FileController {
     ctx.body = {
       code: 200,
       msg: '上传成功',
-      url: 'http://localhost:8001/upload/picture/' + res.filename
+      url: 'http://49.233.62.36:8001/upload/picture/' + res.filename
     }
   }
 
@@ -54,7 +54,7 @@ class FileController {
     ctx.body = {
       code: 200,
       msg: '文件上传成功',
-      mainCoverUrl: 'http://localhost:8001/upload/mainCover/' + filename
+      mainCoverUrl: 'http://49.233.62.36:8001/upload/mainCover/' + filename
     }
   }
 

@@ -11,7 +11,7 @@ class FileService {
       SELECT * FROM avatar WHERE filename = ?;
     `
     const result2 = await connection.execute(statement2, [filename])
-    return `http://localhost:8001/upload/avatar/${result2[0][0].id}`
+    return `http://49.233.62.36:8001/upload/avatar/${result2[0][0].id}`
   }
 
   async getAvatarById(avatarId) {
