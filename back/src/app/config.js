@@ -108,6 +108,10 @@ const { APP_PORT, MYSQL_HOST, MYSQL_PORT, MYSQL_DATABASE, MYSQL_USER, MYSQL_PASS
 // 文章标签
 const LABELS = [
   {
+    label: '优质网文',
+    id: 0
+  },
+  {
     label: '前端',
     id: 1
   },

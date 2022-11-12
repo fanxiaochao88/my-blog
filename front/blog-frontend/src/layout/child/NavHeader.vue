@@ -20,9 +20,17 @@
           </el-input>
         </div>
         <div class="item2" :style="{ width: isFocus ? '0' : '106px' }">
-          <el-button type="primary" plain @click="gotoEdit">
-            编辑文章&nbsp;<el-icon><EditPen /></el-icon>
-          </el-button>
+          <el-dropdown trigger="click">
+            <el-button type="primary" plain>
+              编辑文章&nbsp;<el-icon><EditPen /></el-icon>
+            </el-button>
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item icon="Edit" @click="gotoEdit">原创文章</el-dropdown-item>
+                <el-dropdown-item icon="Link" @click="gotoLink" divided>接入网文</el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
         </div>
         <div class="item3">
           <el-switch inline-prompt :active-icon="Sunny" :inactive-icon="Moon" v-model="isLight" />
@@ -43,16 +51,51 @@
         </div>
       </div>
     </div>
-    <!-- <div class="bottom-content">33</div> -->
+    <el-dialog v-model="linkPublishVisibl" width="30%">
+      <template #header>
+        <div style="position: relative; top: 3px">接入网文</div>
+      </template>
+      <el-form :model="linkForm" label-width="80px">
+        <el-form-item label="标题:">
+          <el-input v-model="linkForm.title" />
+        </el-form-item>
+        <el-form-item label="选择标签: ">
+          <div>
+            <el-check-tag style="margin: 0 5px" v-for="(item, index) in labels" @change="(check: boolean)=>changeCheck(index, check)" :checked="item.checked" :key="item.id">{{
+              item.label
+            }}</el-check-tag>
+          </div>
+        </el-form-item>
+        <el-form-item label="编辑摘要: ">
+          <el-input show-word-limit maxlength="100" v-model="linkForm.description" :rows="5" type="textarea" placeholder="请输入摘要信息" />
+        </el-form-item>
+        <el-form-item label="所属平台:">
+          <el-select v-model="linkForm.belongPlatform" placeholder="请选择文章平台">
+            <el-option v-for="item in platMenu" :key="item.value" :label="item.label" :value="item.value" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="链接地址:">
+          <el-input placeholder="请填入网文链接地址" v-model="linkForm.link" />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="linkPublishVisibl = false">取消</el-button>
+          <el-button type="primary" @click="gotoLinkPublish"> 确认 </el-button>
+        </span>
+      </template>
+    </el-dialog>
   </div>
 </template>
 <script lang="ts" setup>
 import { Search, Sunny, Moon } from '@element-plus/icons-vue'
 import { nextTick, ref, watch } from 'vue'
+import { platMenu } from '@/common/platForm'
 import { useRouter } from 'vue-router'
 import { useLoginStore } from '@/store/login/index'
 import { useOtherStore } from '@/store/other/index'
 import editAPI from '@/api/editAPI'
+import { Message } from '@/utils/message'
 /**
  * element-plus暗黑模式切换
  */
@@ -142,6 +185,59 @@ const gotoEdit = async () => {
   } else {
     router.push('/login')
   }
+}
+
+/**
+ * 实现接入网文
+ */
+const linkPublishVisibl = ref(false)
+const linkForm = ref<{
+  labelNames: string[]
+  labelIds: string[]
+  description: string
+  belongPlatform: string
+  link: string
+  title: string
+}>({
+  title: '',
+  belongPlatform: '',
+  description: '',
+  link: '',
+  labelNames: [],
+  labelIds: []
+})
+// 获取标签数据
+const labels = ref<any[]>([])
+// 填写信息
+const gotoLink = async () => {
+  if (!loginStore.token) {
+    return router.push('/login')
+  }
+  linkPublishVisibl.value = true
+  const res = await editAPI.getLabels()
+  labels.value = res.result
+  labels.value.forEach((item) => {
+    item.checked = false
+  })
+  labels.value[0].checked = true
+}
+const changeCheck = (index: any, check: boolean) => {
+  labels.value[index].checked = check
+}
+// 确认发布网文
+const gotoLinkPublish = async () => {
+  labels.value.forEach((item) => {
+    if (item.checked) {
+      linkForm.value.labelIds.push(item.id)
+      linkForm.value.labelNames.push(item.label)
+    }
+  })
+  linkForm.value.labelIds = linkForm.value.labelIds.join(',') as any
+  linkForm.value.labelNames = linkForm.value.labelNames.join(',') as any
+  // 开始实现网文发布的后端功能
+  const res = await editAPI.publishLinkMoment(linkForm.value)
+  Message(res)
+  linkPublishVisibl.value = false
 }
 </script>
 <style lang="less" scoped>

@@ -4,7 +4,8 @@ enum Edit_API_URL {
   publishMoment = '/moment',
   updateMomentById = '/moment/',
   uploadImage = '/upload/picture/',
-  getLabels = '/moment/label/labelList'
+  getLabels = '/moment/label/labelList',
+  publishLinkMoment = '/linkMoment'
 }
 
 class EditAPI {
@@ -37,6 +38,13 @@ class EditAPI {
   getLabels() {
     return request.get({
       url: Edit_API_URL.getLabels
+    })
+  }
+
+  publishLinkMoment(data: any) {
+    return request.post({
+      url: Edit_API_URL.publishLinkMoment,
+      data
     })
   }
 }
